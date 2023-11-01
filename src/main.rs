@@ -1,4 +1,6 @@
 use minifb::{Key, Window, WindowOptions};
+mod colors;
+use crate::colors::{RED, GREEN, BLUE};
 
 fn main() {
     // Define the window dimensions and options
@@ -20,15 +22,12 @@ fn main() {
         // In your rendering loop:
         let x = 400; // Example X-coordinate
         let y = 300; // Example Y-coordinate
-        let red = from_u8_rgb(255, 0, 0); // Example red in ARGB format
-        let green = from_u8_rgb(0, 255, 0);
-        let blue = from_u8_rgb(0, 100, 205);
 
         // Set the pixel color in the buffer
-        set_pixel(&window, &mut buffer, x, y, red);
-        draw_line(&mut buffer, &window, 50, 200, 600, 400, red);
-        draw_line(&mut buffer, &window, 13, 20, 80, 40, green);
-        draw_line(&mut buffer, &window, 80, 40, 14, 20, blue);
+        set_pixel(&window, &mut buffer, x, y, RED);
+        draw_line(&mut buffer, &window, 50, 200, 600, 400, RED);
+        draw_line(&mut buffer, &window, 13, 20, 80, 40, GREEN);
+        draw_line(&mut buffer, &window, 80, 40, 14, 20, BLUE);
     }
 }
 
@@ -65,11 +64,6 @@ fn draw_line(
             set_pixel(window, buffer, x, y, color);
         }
     }
-}
-
-fn from_u8_rgb(r: u8, g: u8, b: u8) -> u32 {
-    let (r, g, b) = (r as u32, g as u32, b as u32);
-    (r << 16) | (g << 8) | b
 }
 
 fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: u32) {
