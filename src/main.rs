@@ -25,10 +25,10 @@ fn main() {
         let blue = from_u8_rgb(0, 100, 205);
 
         // Set the pixel color in the buffer
-        buffer[y * width + x] = red;
+        set_pixel(&window, &mut buffer, x, y, red);
         draw_line(&mut buffer, &window, 50, 200, 600, 400, red);
-        draw_line(&mut buffer, &window, 14, 20, 80, 40, green);
-        draw_line(&mut buffer, &window, 80, 40, 13, 20, blue);
+        draw_line(&mut buffer, &window, 13, 20, 80, 40, green);
+        draw_line(&mut buffer, &window, 80, 40, 14, 20, blue);
     }
 }
 
@@ -62,7 +62,7 @@ fn draw_line(
         if steep {
             set_pixel(window, buffer, y, x, color);
         } else {
-            set_pixel(window, buffer, y, x, color);
+            set_pixel(window, buffer, x, y, color);
         }
     }
 }
@@ -73,6 +73,6 @@ fn from_u8_rgb(r: u8, g: u8, b: u8) -> u32 {
 }
 
 fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: u32) {
-    let width = window.get_size().1;
+    let width = window.get_size().0;
     buffer[(y * width as u32 + x) as usize] = color;
 }
