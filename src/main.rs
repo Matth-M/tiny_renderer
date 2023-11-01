@@ -13,35 +13,68 @@ fn main() {
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Your rendering code goes here
-        // For example, you can modify the `buffer` to change pixel colors
+        // For example, you can modify the `buffer` to change pixel reds
 
         // Update the window
         window.update_with_buffer(&buffer, width, height).unwrap();
         // In your rendering loop:
         let x = 400; // Example X-coordinate
         let y = 300; // Example Y-coordinate
-        let color = 0xFF_FF_00_FF; // Example color in ARGB format
+        let red = from_u8_rgb(255, 0, 0); // Example red in ARGB format
+        let green = from_u8_rgb(0, 255, 0);
+        let blue = from_u8_rgb(0, 100, 205);
 
         // Set the pixel color in the buffer
-        buffer[y * width + x] = color;
-        let (x0, y0, x1, y1) = (100, 200, 500, 400);
+        buffer[y * width + x] = red;
         draw_line(
             &mut buffer,
             width.try_into().unwrap(),
-            x0,
-            y0,
-            x1,
-            y1,
-            color,
+            50,
+            200,
+            600,
+            400,
+            red,
         );
+        draw_line(
+            &mut buffer,
+            width.try_into().unwrap(),
+            14,
+            20,
+            80,
+            40,
+            green,
+        );
+        draw_line(&mut buffer, width.try_into().unwrap(), 80, 40, 13, 20, blue);
     }
 }
 
 fn draw_line(buffer: &mut Vec<u32>, width: u32, x0: u32, y0: u32, x1: u32, y1: u32, color: u32) {
-    let nb_steps = 1000;
-    for t in (0..=nb_steps).map(|t| t as f32 / nb_steps as f32) {
-        let x = (x0 as f32 + (x1 as f32 - x0 as f32) * t).round() as u32;
-        let y = (y0 as f32 + (y1 as f32 - y0 as f32) * t).round() as u32;
-        buffer[(y * width + x) as usize] = color;
+    let mut x0 = x0;
+    let mut x1 = x1;
+    let mut y0 = y0;
+    let mut y1 = y1;
+    let mut steep = false;
+    if x0.abs_diff(x1) < y0.abs_diff(y1) {
+        std::mem::swap(&mut x0, &mut y0);
+        std::mem::swap(&mut x1, &mut y1);
+        steep = true;
     }
+    if x1 < x0 {
+        std::mem::swap(&mut x0, &mut x1);
+        std::mem::swap(&mut y0, &mut y1);
+    }
+    for x in x0..x1 {
+        let t = (x - x0) as f32 / (x1 - x0) as f32;
+        let y = y0 as f32 * (1. - t) as f32 + y1 as f32 * t;
+        if steep {
+            buffer[(x as u32 * width + y as u32) as usize] = color;
+        } else {
+            buffer[(y as u32 * width + x) as usize] = color;
+        }
+    }
+}
+
+fn from_u8_rgb(r: u8, g: u8, b: u8) -> u32 {
+    let (r, g, b) = (r as u32, g as u32, b as u32);
+    (r << 16) | (g << 8) | b
 }
