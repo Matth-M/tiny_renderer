@@ -26,29 +26,21 @@ fn main() {
 
         // Set the pixel color in the buffer
         buffer[y * width + x] = red;
-        draw_line(
-            &mut buffer,
-            width.try_into().unwrap(),
-            50,
-            200,
-            600,
-            400,
-            red,
-        );
-        draw_line(
-            &mut buffer,
-            width.try_into().unwrap(),
-            14,
-            20,
-            80,
-            40,
-            green,
-        );
-        draw_line(&mut buffer, width.try_into().unwrap(), 80, 40, 13, 20, blue);
+        draw_line(&mut buffer, &window, 50, 200, 600, 400, red);
+        draw_line(&mut buffer, &window, 14, 20, 80, 40, green);
+        draw_line(&mut buffer, &window, 80, 40, 13, 20, blue);
     }
 }
 
-fn draw_line(buffer: &mut Vec<u32>, width: u32, x0: u32, y0: u32, x1: u32, y1: u32, color: u32) {
+fn draw_line(
+    buffer: &mut Vec<u32>,
+    window: &Window,
+    x0: u32,
+    y0: u32,
+    x1: u32,
+    y1: u32,
+    color: u32,
+) {
     let mut x0 = x0;
     let mut x1 = x1;
     let mut y0 = y0;
@@ -66,10 +58,11 @@ fn draw_line(buffer: &mut Vec<u32>, width: u32, x0: u32, y0: u32, x1: u32, y1: u
     for x in x0..x1 {
         let t = (x - x0) as f32 / (x1 - x0) as f32;
         let y = y0 as f32 * (1. - t) as f32 + y1 as f32 * t;
+        let y = y as u32;
         if steep {
-            buffer[(x as u32 * width + y as u32) as usize] = color;
+            set_pixel(window, buffer, y, x, color);
         } else {
-            buffer[(y as u32 * width + x) as usize] = color;
+            set_pixel(window, buffer, y, x, color);
         }
     }
 }
@@ -77,4 +70,9 @@ fn draw_line(buffer: &mut Vec<u32>, width: u32, x0: u32, y0: u32, x1: u32, y1: u
 fn from_u8_rgb(r: u8, g: u8, b: u8) -> u32 {
     let (r, g, b) = (r as u32, g as u32, b as u32);
     (r << 16) | (g << 8) | b
+}
+
+fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: u32) {
+    let width = window.get_size().1;
+    buffer[(y * width as u32 + x) as usize] = color;
 }
