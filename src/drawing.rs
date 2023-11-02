@@ -37,5 +37,8 @@ pub fn draw_line(
 
 pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: u32) {
     let width = window.get_size().0;
-    buffer[(y * width as u32 + x) as usize] = color;
+    let index = (y * width as u32 + x) as usize;
+    if index < buffer.len() {
+        buffer[index] = color;
+    }
 }
