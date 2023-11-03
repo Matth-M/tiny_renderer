@@ -1,7 +1,7 @@
 use minifb::{Key, Window, WindowOptions};
 mod colors;
 mod drawing;
-use crate::colors::{BLUE, GREEN, RED};
+use crate::colors::Color;
 use crate::drawing::draw_wireframe;
 
 fn main() {
@@ -23,6 +23,6 @@ fn main() {
         // draw_line(&mut buffer, &window, 50, 200, 600, 400, RED);
         // draw_line(&mut buffer, &window, 13, 20, 80, 40, GREEN);
         // draw_line(&mut buffer, &window, 80, 40, 14, 20, BLUE);
-        draw_wireframe(&window, &mut buffer, model.clone(), GREEN);
+        draw_wireframe(&window, &mut buffer, model.clone(), Color::White);
     }
 }

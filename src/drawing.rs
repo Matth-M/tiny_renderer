@@ -1,3 +1,4 @@
+use crate::Color;
 use minifb::{Key, Window, WindowOptions};
 use wavefront::Obj;
 
@@ -8,7 +9,7 @@ pub fn draw_line(
     y0: u32,
     x1: u32,
     y1: u32,
-    color: u32,
+    color: Color,
 ) {
     let mut x0 = x0;
     let mut x1 = x1;
@@ -36,15 +37,15 @@ pub fn draw_line(
     }
 }
 
-pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: u32) {
+pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: Color) {
     let width = window.get_size().0;
     let index = (y * width as u32 + x) as usize;
     if index < buffer.len() {
-        buffer[index] = color;
+        buffer[index] = color.as_u32();
     }
 }
 
-pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color: u32) {
+pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color: Color) {
     let (width, height) = window.get_size();
     for [a, b, c] in model.triangles() {
         let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
