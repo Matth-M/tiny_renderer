@@ -2,7 +2,6 @@
 pub enum Color {
     Red,
     Green,
-    Blue,
     White,
 }
 
@@ -11,7 +10,6 @@ impl Color {
         match self {
             Color::Red => from_u8_rgb(255, 0, 0),
             Color::Green => from_u8_rgb(0, 255, 0),
-            Color::Blue => from_u8_rgb(0, 100, 205),
             Color::White => from_u8_rgb(255, 255, 255),
         }
     }
