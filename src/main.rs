@@ -2,7 +2,7 @@ use minifb::{Key, Window, WindowOptions};
 mod colors;
 mod drawing;
 use crate::colors::{BLUE, GREEN, RED};
-use crate::drawing::{draw_line, set_pixel};
+use crate::drawing::draw_wireframe;
 
 fn main() {
     // Define the window dimensions and options
@@ -23,16 +23,6 @@ fn main() {
         // draw_line(&mut buffer, &window, 50, 200, 600, 400, RED);
         // draw_line(&mut buffer, &window, 13, 20, 80, 40, GREEN);
         // draw_line(&mut buffer, &window, 80, 40, 14, 20, BLUE);
-        for [a, b, c] in model.triangles() {
-            let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
-            let y_a = ((a.position()[1] + 1.) * height as f32 / 2.) as u32;
-            let x_b = ((b.position()[0] + 1.) * width as f32 / 2.) as u32;
-            let y_b = ((b.position()[1] + 1.) * height as f32 / 2.) as u32;
-            let x_c = ((c.position()[0] + 1.) * width as f32 / 2.) as u32;
-            let y_c = ((c.position()[1] + 1.) * height as f32 / 2.) as u32;
-            draw_line(&mut buffer, &window, x_a, y_a, x_b, y_b, GREEN);
-            draw_line(&mut buffer, &window, x_b, y_b, x_c, y_c, GREEN);
-            draw_line(&mut buffer, &window, x_a, y_a, x_c, y_c, GREEN);
-        }
+        draw_wireframe(&window, &mut buffer, model.clone(), GREEN);
     }
 }
