@@ -16,19 +16,22 @@ pub fn draw_line(
     let mut y0 = y0;
     let mut y1 = y1;
     let mut steep = false;
+
+    // Number of points should be calculated based off vertical distance if line is steep
     if x0.abs_diff(x1) < y0.abs_diff(y1) {
         std::mem::swap(&mut x0, &mut y0);
         std::mem::swap(&mut x1, &mut y1);
         steep = true;
     }
+    // Always draw left to right
     if x1 < x0 {
         std::mem::swap(&mut x0, &mut x1);
         std::mem::swap(&mut y0, &mut y1);
     }
     for x in x0..x1 {
+        // Step
         let t = (x - x0) as f32 / (x1 - x0) as f32;
-        let y = y0 as f32 * (1. - t) as f32 + y1 as f32 * t;
-        let y = y as u32;
+        let y = (y0 as f32 * (1. - t) as f32 + y1 as f32 * t) as u32;
         if steep {
             set_pixel(window, buffer, y, x, color);
         } else {

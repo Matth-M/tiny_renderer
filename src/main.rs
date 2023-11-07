@@ -19,10 +19,6 @@ fn main() {
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
         window.update_with_buffer(&buffer, width, height).unwrap();
-        // In your rendering loop:
-        // draw_line(&mut buffer, &window, 50, 200, 600, 400, RED);
-        // draw_line(&mut buffer, &window, 13, 20, 80, 40, GREEN);
-        // draw_line(&mut buffer, &window, 80, 40, 14, 20, BLUE);
         draw_wireframe(&window, &mut buffer, model.clone(), Color::White);
     }
 }
