@@ -1,20 +1,18 @@
 use crate::Color;
-use minifb::{Key, Window, WindowOptions};
+use minifb::Window;
 use wavefront::Obj;
 
-pub fn draw_line(
-    buffer: &mut Vec<u32>,
-    window: &Window,
-    x0: u32,
-    y0: u32,
-    x1: u32,
-    y1: u32,
-    color: Color,
-) {
-    let mut x0 = x0;
-    let mut x1 = x1;
-    let mut y0 = y0;
-    let mut y1 = y1;
+#[derive(Clone, PartialEq, Debug)]
+pub struct Position {
+    pub x: u32,
+    pub y: u32,
+}
+
+pub fn draw_line(buffer: &mut Vec<u32>, window: &Window, a: &Position, b: &Position, color: Color) {
+    let mut x0 = a.x;
+    let mut x1 = b.x;
+    let mut y0 = a.y;
+    let mut y1 = b.y;
     let mut steep = false;
 
     // Number of points should be calculated based off vertical distance if line is steep
@@ -48,6 +46,63 @@ pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: 
     }
 }
 
+pub fn triangle(
+    buffer: &mut Vec<u32>,
+    window: &Window,
+    a: Position,
+    b: Position,
+    c: Position,
+    color: Color,
+) {
+    // Get the top and bottom points of the triangle
+    let mut top = a.clone();
+    if top.y > b.y {
+        top = b.clone();
+    } else if top.y > c.y {
+        top = c.clone();
+    }
+    let mut bottom = a.clone();
+    if bottom.y < b.y {
+        bottom = b.clone();
+    } else if bottom.y < c.y {
+        bottom = c.clone();
+    }
+
+    for y in top.y..bottom.y {
+        let mut x1 = Position {
+            x: 0 as u32,
+            y: y as u32,
+        };
+        let mut x2 = Position {
+            x: 0 as u32,
+            y: y as u32,
+        };
+        for x in 0..window.get_size().0 {
+            let p = Position {
+                x: x as u32,
+                y: y as u32,
+            };
+            if is_on_line(&p, &a, &b) {
+                x1.x = x as u32;
+            } else if is_on_line(&p, &a, &c) {
+                x2.x = x as u32;
+            }
+        }
+        draw_line(buffer, window, &x1, &x2, color);
+    }
+
+    draw_line(buffer, &window, &a, &b, color);
+    draw_line(buffer, &window, &b, &c, color);
+    draw_line(buffer, &window, &c, &a, color);
+}
+
+// Check if x in on a line formed by a and b
+fn is_on_line(x: &Position, a: &Position, b: &Position) -> bool {
+    let m = ((a.y as f32 - b.y as f32) as f32 / (a.x as f32 - b.x as f32) as f32) as f32;
+    let p = (a.y as f32 - m * a.x as f32) as f32;
+    return x.y as f32 == m * x.x as f32 + p;
+}
+
 pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color: Color) {
     let (width, height) = window.get_size();
     for [a, b, c] in model.triangles() {
@@ -57,8 +112,9 @@ pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color:
         let y_b = ((b.position()[1] + 1.) * height as f32 / 2.) as u32;
         let x_c = ((c.position()[0] + 1.) * width as f32 / 2.) as u32;
         let y_c = ((c.position()[1] + 1.) * height as f32 / 2.) as u32;
-        draw_line(buffer, &window, x_a, y_a, x_b, y_b, color);
-        draw_line(buffer, &window, x_b, y_b, x_c, y_c, color);
-        draw_line(buffer, &window, x_a, y_a, x_c, y_c, color);
+        let a = Position { x: x_a, y: y_a };
+        let b = Position { x: x_b, y: y_b };
+        let c = Position { x: x_c, y: y_c };
+        triangle(buffer, window, a, b, c, color)
     }
 }

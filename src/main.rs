@@ -2,7 +2,7 @@ use minifb::{Key, Window, WindowOptions};
 mod colors;
 mod drawing;
 use crate::colors::Color;
-use crate::drawing::draw_wireframe;
+use crate::drawing::{draw_wireframe, triangle, Position};
 
 fn main() {
     // Define the window dimensions and options
@@ -15,10 +15,14 @@ fn main() {
             panic!("{}", e);
         });
 
-    let model = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
+    let _model = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
         window.update_with_buffer(&buffer, width, height).unwrap();
-        draw_wireframe(&window, &mut buffer, model.clone(), Color::White);
+        let a = Position { x: 100, y: 100 };
+        let b = Position { x: 300, y: 200 };
+        let c = Position { x: 200, y: 400 };
+        triangle(&mut buffer, &window, a, b, c, Color::Green);
+        // draw_wireframe(&window, &mut buffer, model.clone(), Color::White);
     }
 }
