@@ -70,7 +70,10 @@ pub fn triangle(
         bottom = c.clone();
     }
 
+    // Linesweep from  top.y to bottom.y
     for y in top.y..bottom.y {
+        // x1 and x2 will be the intersection points
+        // with the sides of the triangle
         let mut x1 = Position {
             x: 0 as u32,
             y: y as u32,
@@ -79,23 +82,39 @@ pub fn triangle(
             x: 0 as u32,
             y: y as u32,
         };
+        // For each x along the window, check which side it intersect
+        //  and save the corresponding x
         for x in 0..window.get_size().0 {
             let p = Position {
                 x: x as u32,
                 y: y as u32,
             };
-            if is_on_line(&p, &a, &b) {
-                x1.x = x as u32;
-            } else if is_on_line(&p, &a, &c) {
+            // Once the middle point, vertically wise, is crossed
+            // check for intersection between middle point and botton point
+            if y < b.y {
+                // top - middle
+                if is_on_line(&p, &a, &b) {
+                    x1.x = x as u32;
+                }
+            } else {
+                // bottom - middle
+                if is_on_line(&p, &c, &b) {
+                    x1.x = x as u32;
+                }
+            }
+            // top - bottom
+            if is_on_line(&p, &a, &c) {
                 x2.x = x as u32;
             }
         }
+        // Draw line between the two intersection point
         draw_line(buffer, window, &x1, &x2, color);
     }
 
-    draw_line(buffer, &window, &a, &b, color);
-    draw_line(buffer, &window, &b, &c, color);
-    draw_line(buffer, &window, &c, &a, color);
+    // Limits of the triangle, DEBUG
+    draw_line(buffer, &window, &a, &b, Color::Red);
+    draw_line(buffer, &window, &b, &c, Color::Red);
+    draw_line(buffer, &window, &c, &a, Color::Red);
 }
 
 // Check if x in on a line formed by a and b
