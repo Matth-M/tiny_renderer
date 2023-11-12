@@ -58,13 +58,15 @@ pub fn triangle(
     let mut top = a.clone();
     if top.y > b.y {
         top = b.clone();
-    } else if top.y > c.y {
+    }
+    if top.y > c.y {
         top = c.clone();
     }
     let mut bottom = a.clone();
     if bottom.y < b.y {
         bottom = b.clone();
-    } else if bottom.y < c.y {
+    }
+    if bottom.y < c.y {
         bottom = c.clone();
     }
 
