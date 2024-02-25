@@ -75,8 +75,8 @@ pub fn triangle(
             x: 0 as u32,
             y: y as u32,
         };
-        // For each x along the window, check which side it intersect
-        //  and save the corresponding x
+        // For each x along the window width, check which side it intersects
+        // and save the corresponding x
         for x in 0..window.get_size().0 {
             let p = Position {
                 x: x as u32,
