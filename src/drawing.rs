@@ -84,19 +84,19 @@ pub fn triangle(
             };
             // Once the middle point, vertically wise, is crossed
             // check for intersection between middle point and botton point
-            if y < b.y {
+            if y < middle.y {
                 // top - middle
-                if is_on_line(&p, &a, &b) {
+                if is_on_line(&p, &top, &middle) {
                     x1.x = x as u32;
                 }
             } else {
                 // bottom - middle
-                if is_on_line(&p, &c, &b) {
+                if is_on_line(&p, &bottom, &middle) {
                     x1.x = x as u32;
                 }
             }
             // top - bottom
-            if is_on_line(&p, &a, &c) {
+            if is_on_line(&p, &top, &bottom) {
                 x2.x = x as u32;
             }
         }
@@ -110,11 +110,20 @@ pub fn triangle(
     draw_line(buffer, &window, &c, &a, Color::Red);
 }
 
-// Check if x in on a line formed by a and b
-fn is_on_line(x: &Position, a: &Position, b: &Position) -> bool {
-    let m = ((a.y as f32 - b.y as f32) as f32 / (a.x as f32 - b.x as f32) as f32) as f32;
+// Check if c in on a line formed by a and b
+fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
+    // Horizontal line
+    if a.y == b.y && a.y == check.y {
+        return true;
+    }
+    // Vertical line
+    if a.x == b.x && a.x == check.x {
+        return true;
+    }
+    // line of equation y = mx + p
+    let m = ((a.y as f32 - b.y as f32) / (a.x as f32 - b.x as f32)) as f32;
     let p = (a.y as f32 - m * a.x as f32) as f32;
-    return x.y as f32 == m * x.x as f32 + p;
+    return check.y == (m * check.x as f32 + p) as u32;
 }
 
 pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color: Color) {
