@@ -141,3 +141,26 @@ pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color:
         triangle(buffer, window, a, b, c, color)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::drawing::{is_on_line, Position};
+
+    #[test]
+    fn vertical_line() {
+        // Vertical line
+        let a = Position { x: 6, y: 0 };
+        let b = Position { x: 6, y: 100 };
+        let c = Position { x: 6, y: 90 };
+        assert!(is_on_line(&a, &b, &c));
+    }
+
+    #[test]
+    fn horizontal_line() {
+        // Horizontal line
+        let a = Position { x: 6, y: 250 };
+        let b = Position { x: 85, y: 250 };
+        let c = Position { x: 300, y: 250 };
+        assert!(is_on_line(&a, &b, &c));
+    }
+}
