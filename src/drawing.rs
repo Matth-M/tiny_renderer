@@ -54,21 +54,14 @@ pub fn triangle(
     c: Position,
     color: Color,
 ) {
-    // Get the top and bottom points of the triangle
-    let mut top = a.clone();
-    if top.y > b.y {
-        top = b.clone();
-    }
-    if top.y > c.y {
-        top = c.clone();
-    }
-    let mut bottom = a.clone();
-    if bottom.y < b.y {
-        bottom = b.clone();
-    }
-    if bottom.y < c.y {
-        bottom = c.clone();
-    }
+    // Get the top, middle,  bottom points of the triangle
+    let mut vertices = [a.clone(), b.clone(), c.clone()];
+    vertices.sort_by_key(|pos| pos.y);
+    let top = vertices[0].clone();
+    let middle = vertices[1].clone();
+    let bottom = vertices[2].clone();
+
+    println!("top {:?} middle {:?} bottom {:?}", top, middle, bottom);
 
     // Linesweep from  top.y to bottom.y
     for y in top.y..bottom.y {
