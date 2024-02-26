@@ -1,8 +1,9 @@
+use drawing::triangle;
 use minifb::{Key, Window, WindowOptions};
 mod colors;
 mod drawing;
 use crate::colors::Color;
-use crate::drawing::{draw_wireframe, triangle, Position};
+use crate::drawing::{draw_wireframe, triangle_line_sweep, Position};
 
 fn main() {
     // Define the window dimensions and options

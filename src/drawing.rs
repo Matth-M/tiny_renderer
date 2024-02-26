@@ -1,5 +1,6 @@
 use crate::Color;
 use minifb::Window;
+use vecmath::{vec3_cross, vec3_normalized, Vector3};
 use wavefront::Obj;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -46,7 +47,8 @@ pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: 
     }
 }
 
-pub fn triangle(
+// Old method that used line sweeping
+pub fn triangle_line_sweep(
     buffer: &mut Vec<u32>,
     window: &Window,
     a: Position,
@@ -110,6 +112,60 @@ pub fn triangle(
     draw_line(buffer, &window, &c, &a, Color::Red);
 }
 
+pub fn triangle(
+    buffer: &mut Vec<u32>,
+    window: &Window,
+    a: Position,
+    b: Position,
+    c: Position,
+    color: Color,
+) {
+    // Find bounding box
+    let min_x = a.x.min(b.x).min(c.x);
+    let max_x = a.x.max(b.x).max(c.x);
+
+    let min_y = a.y.min(b.y).min(c.y);
+    let max_y = a.y.max(b.y).max(c.y);
+
+    //DEBUG: Limit ot the bounding box
+    let left_up = Position { x: min_x, y: max_y };
+    let right_up = Position { x: max_x, y: max_y };
+    let left_down = Position { x: min_x, y: min_y };
+    let right_down = Position { x: max_x, y: min_y };
+    draw_line(buffer, window, &left_up, &right_up, color);
+    draw_line(buffer, window, &left_down, &right_down, color);
+    draw_line(buffer, window, &left_down, &left_up, color);
+    draw_line(buffer, window, &right_down, &right_up, color);
+
+    for y in min_y..max_y {
+        for x in min_x..max_x {
+            let s: Vector3<f32> = [
+                b.x as f32 - a.x as f32,
+                c.x as f32 - a.x as f32,
+                a.x as f32 - b.x as f32,
+            ];
+            let t: Vector3<f32> = [
+                b.y as f32 - a.y as f32,
+                c.y as f32 - a.y as f32,
+                a.y as f32 - b.y as f32,
+            ];
+            set_pixel(window, buffer, x, y, color);
+            // let cross = vec3_cross(s, t);
+            // let u = cross[0];
+            // let v = cross[1];
+            // let is_inside = u > 0. && v > 0. && u + v < 1.;
+            // print!("{is_inside}");
+            // if is_inside {
+            //     set_pixel(window, buffer, x, y, color);
+            // }
+        }
+        // DEBUG: Limits of the triangle
+        draw_line(buffer, &window, &a, &b, Color::Red);
+        draw_line(buffer, &window, &b, &c, Color::Red);
+        draw_line(buffer, &window, &c, &a, Color::Red);
+    }
+}
+
 // Check if c in on a line formed by a and b
 fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
     // Horizontal line
@@ -138,7 +194,7 @@ pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color:
         let a = Position { x: x_a, y: y_a };
         let b = Position { x: x_b, y: y_b };
         let c = Position { x: x_c, y: y_c };
-        triangle(buffer, window, a, b, c, color)
+        triangle_line_sweep(buffer, window, a, b, c, color)
     }
 }
 
