@@ -16,7 +16,7 @@ fn main() {
             panic!("{}", e);
         });
 
-    let _model = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
+    let model = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
         window.update_with_buffer(&buffer, width, height).unwrap();

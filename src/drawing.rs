@@ -1,6 +1,6 @@
 use crate::Color;
 use minifb::Window;
-use vecmath::{vec3_cross, vec3_normalized, Vector3};
+use vecmath::{vec3_cross, Vector3};
 use wavefront::Obj;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -112,6 +112,29 @@ pub fn triangle_line_sweep(
     draw_line(buffer, &window, &c, &a, Color::Red);
 }
 
+fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector3<f32> {
+    let s: Vector3<f32> = [
+        b.x as f32 - a.x as f32,
+        c.x as f32 - a.x as f32,
+        a.x as f32 - p.x as f32,
+    ];
+    let t: Vector3<f32> = [
+        b.y as f32 - a.y as f32,
+        c.y as f32 - a.y as f32,
+        a.y as f32 - p.y as f32,
+    ];
+    let cross = vec3_cross(s, t);
+    if cross[2].abs() < 1. {
+        return [-1., 1., 1.];
+    }
+    let u: Vector3<f32> = [
+        1. - (cross[0] + cross[1]) / cross[2],
+        cross[1] / cross[2],
+        cross[0] / cross[2],
+    ];
+    return u;
+}
+
 pub fn triangle(
     buffer: &mut Vec<u32>,
     window: &Window,
@@ -127,42 +150,18 @@ pub fn triangle(
     let min_y = a.y.min(b.y).min(c.y);
     let max_y = a.y.max(b.y).max(c.y);
 
-    //DEBUG: Limit ot the bounding box
-    let left_up = Position { x: min_x, y: max_y };
-    let right_up = Position { x: max_x, y: max_y };
-    let left_down = Position { x: min_x, y: min_y };
-    let right_down = Position { x: max_x, y: min_y };
-    draw_line(buffer, window, &left_up, &right_up, color);
-    draw_line(buffer, window, &left_down, &right_down, color);
-    draw_line(buffer, window, &left_down, &left_up, color);
-    draw_line(buffer, window, &right_down, &right_up, color);
-
     for y in min_y..max_y {
         for x in min_x..max_x {
-            let s: Vector3<f32> = [
-                b.x as f32 - a.x as f32,
-                c.x as f32 - a.x as f32,
-                a.x as f32 - b.x as f32,
-            ];
-            let t: Vector3<f32> = [
-                b.y as f32 - a.y as f32,
-                c.y as f32 - a.y as f32,
-                a.y as f32 - b.y as f32,
-            ];
-            set_pixel(window, buffer, x, y, color);
-            // let cross = vec3_cross(s, t);
-            // let u = cross[0];
-            // let v = cross[1];
-            // let is_inside = u > 0. && v > 0. && u + v < 1.;
-            // print!("{is_inside}");
-            // if is_inside {
-            //     set_pixel(window, buffer, x, y, color);
-            // }
+            let p = Position { x, y };
+            let cross = barycentric(&a, &b, &c, &p);
+            let u = cross[0];
+            let v = cross[1];
+            let is_inside = u > 0. && v > 0. && u + v < 1.;
+
+            if is_inside {
+                set_pixel(window, buffer, x, y, color);
+            }
         }
-        // DEBUG: Limits of the triangle
-        draw_line(buffer, &window, &a, &b, Color::Red);
-        draw_line(buffer, &window, &b, &c, Color::Red);
-        draw_line(buffer, &window, &c, &a, Color::Red);
     }
 }
 
@@ -194,7 +193,7 @@ pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color:
         let a = Position { x: x_a, y: y_a };
         let b = Position { x: x_b, y: y_b };
         let c = Position { x: x_c, y: y_c };
-        triangle_line_sweep(buffer, window, a, b, c, color)
+        triangle(buffer, window, a, b, c, color);
     }
 }
 
