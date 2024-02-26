@@ -113,6 +113,7 @@ pub fn triangle_line_sweep(
     draw_line(buffer, &window, &c, &a, Color::red());
 }
 
+// Computes the barycentric coordinates of point P based on the triangle ABC
 fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector3<f32> {
     let s: Vector3<f32> = [
         b.x as f32 - a.x as f32,
@@ -126,6 +127,7 @@ fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector
     ];
     let cross = vec3_cross(s, t);
     if cross[2].abs() < 1. {
+        // If cross[2].abs() < 1, cross[2] is 0 and the triangle is degenerate
         return [-1., 1., 1.];
     }
     let u: Vector3<f32> = [
@@ -154,11 +156,11 @@ pub fn triangle(
     for y in min_y..max_y {
         for x in min_x..max_x {
             let p = Position { x, y };
-            let cross = barycentric(&a, &b, &c, &p);
-            let u = cross[0];
-            let v = cross[1];
+            // Check if p is inside the triangle
+            let barycentric = barycentric(&a, &b, &c, &p);
+            let u = barycentric[0];
+            let v = barycentric[1];
             let is_inside = u > 0. && v > 0. && u + v < 1.;
-
             if is_inside {
                 set_pixel(window, buffer, x, y, color);
             }
