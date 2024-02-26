@@ -20,10 +20,10 @@ fn main() {
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
         window.update_with_buffer(&buffer, width, height).unwrap();
-        let a = Position { x: 100, y: 100 };
-        let b = Position { x: 300, y: 200 };
-        let c = Position { x: 200, y: 400 };
-        triangle(&mut buffer, &window, a, b, c, Color::Green);
-        // draw_wireframe(&window, &mut buffer, model.clone(), Color::White);
+        // let a = Position { x: 100, y: 100 };
+        // let b = Position { x: 300, y: 200 };
+        // let c = Position { x: 200, y: 400 };
+        // triangle(&mut buffer, &window, a, b, c, Color::green());
+        draw_wireframe(&window, &mut buffer, model.clone());
     }
 }

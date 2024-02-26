@@ -1,5 +1,6 @@
 use crate::Color;
 use minifb::Window;
+use rand::Rng;
 use vecmath::{vec3_cross, Vector3};
 use wavefront::Obj;
 
@@ -107,9 +108,9 @@ pub fn triangle_line_sweep(
     }
 
     // Limits of the triangle, DEBUG
-    draw_line(buffer, &window, &a, &b, Color::Red);
-    draw_line(buffer, &window, &b, &c, Color::Red);
-    draw_line(buffer, &window, &c, &a, Color::Red);
+    draw_line(buffer, &window, &a, &b, Color::red());
+    draw_line(buffer, &window, &b, &c, Color::red());
+    draw_line(buffer, &window, &c, &a, Color::red());
 }
 
 fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector3<f32> {
@@ -181,7 +182,7 @@ fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
     return check.y == (m * check.x as f32 + p) as u32;
 }
 
-pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color: Color) {
+pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj) {
     let (width, height) = window.get_size();
     for [a, b, c] in model.triangles() {
         let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
@@ -193,7 +194,19 @@ pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj, color:
         let a = Position { x: x_a, y: y_a };
         let b = Position { x: x_b, y: y_b };
         let c = Position { x: x_c, y: y_c };
-        triangle(buffer, window, a, b, c, color);
+        // Generate random values for red, green, and blue components
+        let mut rng = rand::thread_rng();
+        let red: u8 = rng.gen();
+        let green: u8 = rng.gen();
+        let blue: u8 = rng.gen();
+        triangle(
+            buffer,
+            window,
+            a,
+            b,
+            c,
+            Color::from_u8_rgb(red, green, blue),
+        );
     }
 }
 
