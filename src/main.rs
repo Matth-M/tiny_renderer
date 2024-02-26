@@ -1,9 +1,8 @@
-use drawing::triangle;
 use minifb::{Key, Window, WindowOptions};
 mod colors;
 mod drawing;
 use crate::colors::Color;
-use crate::drawing::{draw_wireframe, triangle_line_sweep, Position};
+use crate::drawing::draw_wireframe;
 
 fn main() {
     // Define the window dimensions and options
@@ -23,7 +22,7 @@ fn main() {
         // let a = Position { x: 100, y: 100 };
         // let b = Position { x: 300, y: 200 };
         // let c = Position { x: 200, y: 400 };
-        // triangle(&mut buffer, &window, a, b, c, Color::green());
+        // fill_triangle(&mut buffer, &window, a, b, c, Color::from_u8_rgb(128, 0, 0));
         draw_wireframe(&window, &mut buffer, model.clone());
     }
 }
