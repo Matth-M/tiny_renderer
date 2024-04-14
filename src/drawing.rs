@@ -187,18 +187,15 @@ fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
     return check.y == (m * check.x as f32 + p) as u32;
 }
 
-pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj) {
+pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: Obj) {
     let (width, height) = window.get_size();
     for [a, b, c] in model.triangles() {
         let normal = vec3_cross(a.position(), b.position());
         let normal = vec3_normalized(normal);
-        let light_direction: Vector3<f32> = [0., 0., -1.0];
-        let mut intensity = vec3_dot(normal, light_direction);
+        let light_direction: Vector3<f32> = [0., 0., -1.];
+        let intensity = vec3_dot(normal, light_direction);
 
         if intensity > 0. {
-            if intensity > 1. {
-                intensity = 1.;
-            }
             // Get screen coordinates for the triangle
             let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
             let y_a = ((a.position()[1] + 1.) * height as f32 / 2.) as u32;
