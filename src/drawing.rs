@@ -191,11 +191,15 @@ fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
 
 pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
     let (width, height) = window.get_size();
+    // Iterate through models triangles and draw them
     for [a, b, c] in model.triangles() {
+        // Find the light intensity applied on that triangle
         let normal = vec3_cross(a.position(), b.position());
         let normal = vec3_normalized(normal);
         let light_direction: Vector3<f32> = [0., 0., -1.];
+        let opposite_light_direction: Vector3<f32> = [0., 0., 1.];
         let intensity = vec3_dot(normal, light_direction);
+        let opposite_intensity = vec3_dot(normal, opposite_light_direction);
 
         if intensity > 0. {
             // Get screen coordinates for the triangle
