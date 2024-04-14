@@ -51,6 +51,7 @@ pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: 
     }
 }
 
+#[allow(dead_code)]
 // Old method that used line sweeping
 pub fn triangle_line_sweep(
     buffer: &mut Vec<u32>,
@@ -171,6 +172,7 @@ pub fn fill_triangle(
     }
 }
 
+#[allow(dead_code)]
 // Check if c in on a line formed by a and b
 fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
     // Horizontal line
@@ -187,7 +189,7 @@ fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
     return check.y == (m * check.x as f32 + p) as u32;
 }
 
-pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: Obj) {
+pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
     let (width, height) = window.get_size();
     for [a, b, c] in model.triangles() {
         let normal = vec3_cross(a.position(), b.position());

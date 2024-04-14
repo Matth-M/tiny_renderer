@@ -2,7 +2,8 @@ use minifb::{Key, Window, WindowOptions};
 mod colors;
 mod drawing;
 use crate::colors::Color;
-use crate::drawing::draw_wireframe;
+#[allow(unused_imports)]
+use crate::drawing::{fill_triangle, render_model, Position};
 
 fn main() {
     // Define the window dimensions and options
@@ -15,7 +16,8 @@ fn main() {
             panic!("{}", e);
         });
 
-    let model = wavefront::Obj::from_file("assets/head.obj").unwrap();
+    #[allow(unused_variables)]
+    let head = wavefront::Obj::from_file("assets/head.obj").unwrap();
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
         window.update_with_buffer(&buffer, width, height).unwrap();
