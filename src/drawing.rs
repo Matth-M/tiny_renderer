@@ -144,9 +144,9 @@ fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector
 pub fn fill_triangle(
     buffer: &mut Vec<u32>,
     window: &Window,
-    a: Position,
-    b: Position,
-    c: Position,
+    a: &Position,
+    b: &Position,
+    c: &Position,
     color: Color,
 ) {
     // Find bounding box
@@ -210,12 +210,15 @@ pub fn draw_wireframe(window: &Window, buffer: &mut Vec<u32>, model: Obj) {
             let b = Position { x: x_b, y: y_b };
             let c = Position { x: x_c, y: y_c };
 
+            draw_line(buffer, window, &a, &b, Color::white());
+            draw_line(buffer, window, &a, &c, Color::white());
+            draw_line(buffer, window, &c, &b, Color::white());
             fill_triangle(
                 buffer,
                 window,
-                a,
-                b,
-                c,
+                &a,
+                &b,
+                &c,
                 Color::from_u8_rgb(
                     (intensity * 255.) as u8,
                     (intensity * 255.) as u8,
