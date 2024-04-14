@@ -18,13 +18,21 @@ fn main() {
 
     #[allow(unused_variables)]
     let head = wavefront::Obj::from_file("assets/head.obj").unwrap();
+    let diablo3_pose = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
         window.update_with_buffer(&buffer, width, height).unwrap();
         // let a = Position { x: 100, y: 100 };
         // let b = Position { x: 300, y: 200 };
         // let c = Position { x: 200, y: 400 };
-        // fill_triangle(&mut buffer, &window, a, b, c, Color::from_u8_rgb(128, 0, 0));
-        draw_wireframe(&window, &mut buffer, model.clone());
+        // fill_triangle(
+        //     &mut buffer,
+        //     &window,
+        //     &a,
+        //     &b,
+        //     &c,
+        //     Color::from_u8_rgb(128, 0, 0),
+        // );
+        render_model(&window, &mut buffer, &diablo3_pose);
     }
 }
