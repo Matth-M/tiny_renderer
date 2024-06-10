@@ -30,7 +30,7 @@ pub fn draw_line(buffer: &mut Vec<u32>, window: &Window, a: &Position, b: &Posit
     for x in x0..x1 {
         // Step
         let t = (x - x0) as f32 / (x1 - x0) as f32;
-        let y = (y0 as f32 * (1. - t) as f32 + y1 as f32 * t) as u32;
+        let y = (y0 as f32 * (1. - t) + y1 as f32 * t) as u32;
         if steep {
             set_pixel(window, buffer, y, x, color);
         } else {
@@ -75,19 +75,19 @@ pub fn triangle_line_sweep(
         // x1 and x2 will be the intersection points
         // with the sides of the triangle
         let mut x1 = Position {
-            x: 0 as u32,
-            y: y as u32,
+            x: 0_u32,
+            y,
         };
         let mut x2 = Position {
-            x: 0 as u32,
-            y: y as u32,
+            x: 0_u32,
+            y,
         };
         // For each x along the window width, check which side it intersects
         // and save the corresponding x
         for x in 0..window.get_size().0 {
             let p = Position {
                 x: x as u32,
-                y: y as u32,
+                y,
             };
             // Once the middle point, vertically wise, is crossed
             // check for intersection between middle point and botton point
@@ -112,9 +112,9 @@ pub fn triangle_line_sweep(
     }
 
     // Limits of the triangle, DEBUG
-    draw_line(buffer, &window, &a, &b, Color::red());
-    draw_line(buffer, &window, &b, &c, Color::red());
-    draw_line(buffer, &window, &c, &a, Color::red());
+    draw_line(buffer, window, &a, &b, Color::red());
+    draw_line(buffer, window, &b, &c, Color::red());
+    draw_line(buffer, window, &c, &a, Color::red());
 }
 
 // Computes the barycentric coordinates of point P based on the triangle ABC
@@ -151,9 +151,9 @@ fn outline_triangle(
     c: &Position,
     color: Color,
 ) {
-    draw_line(buffer, window, &a, &b, color);
-    draw_line(buffer, window, &a, &c, color);
-    draw_line(buffer, window, &c, &b, color);
+    draw_line(buffer, window, a, b, color);
+    draw_line(buffer, window, a, c, color);
+    draw_line(buffer, window, c, b, color);
 }
 
 pub fn fill_triangle(
@@ -175,7 +175,7 @@ pub fn fill_triangle(
         for x in min_x..max_x {
             let p = Position { x, y };
             // Check if p is inside the triangle
-            let barycentric = barycentric(&a, &b, &c, &p);
+            let barycentric = barycentric(a, b, c, &p);
             let u = barycentric[0];
             let v = barycentric[1];
             let is_inside = u > 0. && v > 0. && u + v < 1.;
@@ -198,9 +198,9 @@ fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
         return true;
     }
     // line of equation y = mx + p
-    let m = ((a.y as f32 - b.y as f32) / (a.x as f32 - b.x as f32)) as f32;
-    let p = (a.y as f32 - m * a.x as f32) as f32;
-    return check.y == (m * check.x as f32 + p) as u32;
+    let m = (a.y as f32 - b.y as f32) / (a.x as f32 - b.x as f32);
+    let p = a.y as f32 - m * a.x as f32;
+    check.y == (m * check.x as f32 + p) as u32
 }
 
 pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
