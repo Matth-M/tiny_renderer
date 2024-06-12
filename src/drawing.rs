@@ -46,6 +46,7 @@ pub fn draw_line(
     }
 }
 
+/// Set pixel with color in the buffer
 pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: Color) {
     let width = window.get_size().0;
     let height = window.get_size().1;
@@ -189,11 +190,7 @@ pub fn fill_triangle(
         for x in min_x..max_x {
             let p = ScreenPosition { x, y };
             // Check if p is inside the triangle
-            let barycentric = barycentric(a, b, c, &p);
-            let u = barycentric[0];
-            let v = barycentric[1];
-            let is_inside = u > 0. && v > 0. && u + v < 1.;
-            if is_inside {
+            if is_inside_triangle(a, b, c, &p) {
                 set_pixel(window, buffer, x, y, color);
             }
         }
@@ -217,27 +214,38 @@ fn is_on_line(a: &ScreenPosition, b: &ScreenPosition, check: &ScreenPosition) ->
     check.y == (m * check.x as f32 + p) as u32
 }
 
-pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
+//
+fn get_intensity(a: &Vertex, b: &Vertex, light_direction: [f32; 3]) -> f32 {
+    let normal = vec3_cross(a.position(), b.position());
+    let normal = vec3_normalized(normal);
+    vec3_dot(normal, light_direction)
+}
+
+fn convert_to_screen_coordinates(v: [Vertex; 3], window: &Window) -> [ScreenPosition; 3] {
     let (width, height) = window.get_size();
+    let a = v[0];
+    let b = v[1];
+    let c = v[2];
+    let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
+    let y_a = ((a.position()[1] + 1.) * height as f32 / 2.) as u32;
+    let x_b = ((b.position()[0] + 1.) * width as f32 / 2.) as u32;
+    let y_b = ((b.position()[1] + 1.) * height as f32 / 2.) as u32;
+    let x_c = ((c.position()[0] + 1.) * width as f32 / 2.) as u32;
+    let y_c = ((c.position()[1] + 1.) * height as f32 / 2.) as u32;
+    let a = ScreenPosition { x: x_a, y: y_a };
+    let b = ScreenPosition { x: x_b, y: y_b };
+    let c = ScreenPosition { x: x_c, y: y_c };
+    [a, b, c]
+}
+
+/// Set buffer to render the model
+pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
     // Iterate through models triangles and draw them
     for [a, b, c] in model.triangles() {
-        // Find the light intensity applied on that triangle
-        let normal = vec3_cross(a.position(), b.position());
-        let normal = vec3_normalized(normal);
-        let light_direction: Vector3<f32> = [0., 0., 1.];
-        let intensity = vec3_dot(normal, light_direction);
+        let light_direction = [0., 0., 1.];
+        let intensity = get_intensity(&a, &b, light_direction);
 
-        // Get screen coordinates for the triangle
-        let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
-        let y_a = ((a.position()[1] + 1.) * height as f32 / 2.) as u32;
-        let x_b = ((b.position()[0] + 1.) * width as f32 / 2.) as u32;
-        let y_b = ((b.position()[1] + 1.) * height as f32 / 2.) as u32;
-        let x_c = ((c.position()[0] + 1.) * width as f32 / 2.) as u32;
-        let y_c = ((c.position()[1] + 1.) * height as f32 / 2.) as u32;
-        let a = Position { x: x_a, y: y_a };
-        let b = Position { x: x_b, y: y_b };
-        let c = Position { x: x_c, y: y_c };
-
+        let [a, b, c] = convert_to_screen_coordinates([a, b, c], window);
         if intensity > 0. {
             fill_triangle(
                 buffer,
@@ -259,7 +267,7 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
 
 #[cfg(test)]
 mod tests {
-    use crate::drawing::{is_on_line, Position};
+    use super::*;
 
     #[test]
     fn vertical_line() {
@@ -277,5 +285,17 @@ mod tests {
         let b = ScreenPosition { x: 85, y: 250 };
         let c = ScreenPosition { x: 300, y: 250 };
         assert!(is_on_line(&a, &b, &c));
+    }
+
+    #[test]
+    fn test_is_inside_triangle() {
+        let a = ScreenPosition { x: 0, y: 0 };
+        let b = ScreenPosition { x: 10, y: 0 };
+        let c = ScreenPosition { x: 0, y: 20 };
+        let inside = ScreenPosition { x: 1, y: 1 };
+        assert!(is_inside_triangle(&a, &b, &c, &inside));
+
+        let outside = ScreenPosition { x: 46, y: 1 };
+        assert!(!is_inside_triangle(&a, &b, &c, &outside));
     }
 }
