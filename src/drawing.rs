@@ -1,15 +1,22 @@
 use crate::Color;
 use minifb::Window;
 use vecmath::{vec3_cross, vec3_dot, vec3_normalized, Vector3};
-use wavefront::Obj;
+use wavefront::{Obj, Vertex};
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct Position {
+pub struct ScreenPosition {
     pub x: u32,
     pub y: u32,
 }
 
-pub fn draw_line(buffer: &mut Vec<u32>, window: &Window, a: &Position, b: &Position, color: Color) {
+/// Draw a line between a and b.
+pub fn draw_line(
+    buffer: &mut Vec<u32>,
+    window: &Window,
+    a: &ScreenPosition,
+    b: &ScreenPosition,
+    color: Color,
+) {
     let mut x0 = a.x;
     let mut x1 = b.x;
     let mut y0 = a.y;
@@ -52,13 +59,13 @@ pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: 
 }
 
 #[allow(dead_code)]
-// Old method that used line sweeping
+/// Draw triangle filled triangle based on 3 points using the line sweeping algorithm.
 pub fn triangle_line_sweep(
     buffer: &mut Vec<u32>,
     window: &Window,
-    a: Position,
-    b: Position,
-    c: Position,
+    a: ScreenPosition,
+    b: ScreenPosition,
+    c: ScreenPosition,
     color: Color,
 ) {
     // Get the top, middle,  bottom points of the triangle
@@ -74,21 +81,12 @@ pub fn triangle_line_sweep(
     for y in top.y..bottom.y {
         // x1 and x2 will be the intersection points
         // with the sides of the triangle
-        let mut x1 = Position {
-            x: 0_u32,
-            y,
-        };
-        let mut x2 = Position {
-            x: 0_u32,
-            y,
-        };
+        let mut x1 = ScreenPosition { x: 0_u32, y };
+        let mut x2 = ScreenPosition { x: 0_u32, y };
         // For each x along the window width, check which side it intersects
         // and save the corresponding x
         for x in 0..window.get_size().0 {
-            let p = Position {
-                x: x as u32,
-                y,
-            };
+            let p = ScreenPosition { x: x as u32, y };
             // Once the middle point, vertically wise, is crossed
             // check for intersection between middle point and botton point
             if y < middle.y {
@@ -112,13 +110,16 @@ pub fn triangle_line_sweep(
     }
 
     // Limits of the triangle, DEBUG
-    draw_line(buffer, window, &a, &b, Color::red());
-    draw_line(buffer, window, &b, &c, Color::red());
-    draw_line(buffer, window, &c, &a, Color::red());
+    outline_triangle(buffer, window, &a, &b, &c, color);
 }
 
-// Computes the barycentric coordinates of point P based on the triangle ABC
-fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector3<f32> {
+/// Computes the barycentric coordinates of point P based on the triangle ABC
+fn barycentric(
+    a: &ScreenPosition,
+    b: &ScreenPosition,
+    c: &ScreenPosition,
+    p: &ScreenPosition,
+) -> Vector3<f32> {
     let s: Vector3<f32> = [
         a.x as f32 - b.x as f32,
         a.x as f32 - c.x as f32,
@@ -143,12 +144,13 @@ fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector
     u
 }
 
+/// Draw outline of triangle
 fn outline_triangle(
     buffer: &mut Vec<u32>,
     window: &Window,
-    a: &Position,
-    b: &Position,
-    c: &Position,
+    a: &ScreenPosition,
+    b: &ScreenPosition,
+    c: &ScreenPosition,
     color: Color,
 ) {
     draw_line(buffer, window, a, b, color);
@@ -156,12 +158,24 @@ fn outline_triangle(
     draw_line(buffer, window, c, b, color);
 }
 
+fn is_inside_triangle(
+    a: &ScreenPosition,
+    b: &ScreenPosition,
+    c: &ScreenPosition,
+    p: &ScreenPosition,
+) -> bool {
+    let barycentric = barycentric(a, b, c, &p);
+    let u = barycentric[0];
+    let v = barycentric[1];
+    return u > 0. && v > 0. && u + v < 1.;
+}
+
 pub fn fill_triangle(
     buffer: &mut Vec<u32>,
     window: &Window,
-    a: &Position,
-    b: &Position,
-    c: &Position,
+    a: &ScreenPosition,
+    b: &ScreenPosition,
+    c: &ScreenPosition,
     color: Color,
 ) {
     // Find bounding box
@@ -173,7 +187,7 @@ pub fn fill_triangle(
 
     for y in min_y..max_y {
         for x in min_x..max_x {
-            let p = Position { x, y };
+            let p = ScreenPosition { x, y };
             // Check if p is inside the triangle
             let barycentric = barycentric(a, b, c, &p);
             let u = barycentric[0];
@@ -187,8 +201,8 @@ pub fn fill_triangle(
 }
 
 #[allow(dead_code)]
-// Check if c in on a line formed by a and b
-fn is_on_line(a: &Position, b: &Position, check: &Position) -> bool {
+/// Check if c in on a line formed by a and b
+fn is_on_line(a: &ScreenPosition, b: &ScreenPosition, check: &ScreenPosition) -> bool {
     // Horizontal line
     if a.y == b.y && a.y == check.y {
         return true;
@@ -250,18 +264,18 @@ mod tests {
     #[test]
     fn vertical_line() {
         // Vertical line
-        let a = Position { x: 6, y: 0 };
-        let b = Position { x: 6, y: 100 };
-        let c = Position { x: 6, y: 90 };
+        let a = ScreenPosition { x: 6, y: 0 };
+        let b = ScreenPosition { x: 6, y: 100 };
+        let c = ScreenPosition { x: 6, y: 90 };
         assert!(is_on_line(&a, &b, &c));
     }
 
     #[test]
     fn horizontal_line() {
         // Horizontal line
-        let a = Position { x: 6, y: 250 };
-        let b = Position { x: 85, y: 250 };
-        let c = Position { x: 300, y: 250 };
+        let a = ScreenPosition { x: 6, y: 250 };
+        let b = ScreenPosition { x: 85, y: 250 };
+        let c = ScreenPosition { x: 300, y: 250 };
         assert!(is_on_line(&a, &b, &c));
     }
 }

@@ -3,7 +3,7 @@ mod colors;
 mod drawing;
 use crate::colors::Color;
 #[allow(unused_imports)]
-use crate::drawing::{fill_triangle, render_model, Position};
+use crate::drawing::{fill_triangle, render_model, ScreenPosition};
 
 fn main() {
     // Define the window dimensions and options
@@ -21,18 +21,18 @@ fn main() {
     let diablo3_pose = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
-        render_model(&window, &mut buffer, &diablo3_pose);
+        drawing::render_model(&window, &mut buffer, &diablo3_pose);
         window.update_with_buffer(&buffer, width, height).unwrap();
-        // let a = Position { x: 100, y: 100 };
-        // let b = Position { x: 300, y: 200 };
-        // let c = Position { x: 200, y: 400 };
-        // fill_triangle(
-        //     &mut buffer,
-        //     &window,
-        //     &a,
-        //     &b,
-        //     &c,
-        //     Color::from_u8_rgb(128, 0, 0),
-        // );
+        let a = ScreenPosition { x: 100, y: 100 };
+        let b = ScreenPosition { x: 300, y: 200 };
+        let c = ScreenPosition { x: 200, y: 400 };
+        fill_triangle(
+            &mut buffer,
+            &window,
+            &a,
+            &b,
+            &c,
+            Color::from_u8_rgb(128, 0, 0),
+        );
     }
 }
