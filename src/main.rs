@@ -25,16 +25,8 @@ fn main() {
         // Update the window
         drawing::render_model(&window, &mut buffer, &diablo3_pose);
         window.update_with_buffer(&buffer, width, height).unwrap();
-        let a = ScreenPosition { x: 100, y: 100 };
-        let b = ScreenPosition { x: 300, y: 200 };
-        let c = ScreenPosition { x: 200, y: 400 };
-        fill_triangle(
-            &mut buffer,
-            &window,
-            &a,
-            &b,
-            &c,
-            Color::from_u8_rgb(128, 0, 0),
-        );
+
+        // Draw model
+        drawing::render_model(&window, &mut buffer, &head);
     }
 }
