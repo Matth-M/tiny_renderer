@@ -238,9 +238,9 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
     for [a, b, c] in model.triangles() {
         let intensity = get_intensity([&a, &b, &c], light_direction);
         if intensity > 0. {
-        let a = convert_to_screen_coordinates(&a, window);
-        let b = convert_to_screen_coordinates(&b, window);
-        let c = convert_to_screen_coordinates(&c, window);
+            let a = convert_to_screen_coordinates(&a, window);
+            let b = convert_to_screen_coordinates(&b, window);
+            let c = convert_to_screen_coordinates(&c, window);
             fill_triangle(
                 buffer,
                 window,
@@ -255,7 +255,6 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
             );
             outline_triangle(buffer, window, &a, &b, &c, Color::white());
         }
-
     }
 }
 
