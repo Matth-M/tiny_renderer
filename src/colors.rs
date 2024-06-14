@@ -1,3 +1,5 @@
+use core::fmt;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Color {
     r: u8,
@@ -29,5 +31,11 @@ impl Color {
 
     pub fn from_u8_rgb(r: u8, g: u8, b: u8) -> Color {
         Color { r, g, b }
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "red: {}, green{}, blue:{}", self.r, self.g, self.b)
     }
 }
