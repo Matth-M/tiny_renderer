@@ -269,9 +269,9 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
                     (intensity * 255.) as u8,
                 ),
             );
+            outline_triangle(buffer, window, &a, &b, &c, Color::white());
         }
 
-        outline_triangle(buffer, window, &a, &b, &c, Color::white());
     }
 }
 
