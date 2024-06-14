@@ -213,18 +213,18 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
         let light_direction: Vector3<f32> = [0., 0., 1.];
         let intensity = vec3_dot(normal, light_direction);
 
-        if intensity > 0. {
-            // Get screen coordinates for the triangle
-            let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
-            let y_a = ((a.position()[1] + 1.) * height as f32 / 2.) as u32;
-            let x_b = ((b.position()[0] + 1.) * width as f32 / 2.) as u32;
-            let y_b = ((b.position()[1] + 1.) * height as f32 / 2.) as u32;
-            let x_c = ((c.position()[0] + 1.) * width as f32 / 2.) as u32;
-            let y_c = ((c.position()[1] + 1.) * height as f32 / 2.) as u32;
-            let a = Position { x: x_a, y: y_a };
-            let b = Position { x: x_b, y: y_b };
-            let c = Position { x: x_c, y: y_c };
+        // Get screen coordinates for the triangle
+        let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
+        let y_a = ((a.position()[1] + 1.) * height as f32 / 2.) as u32;
+        let x_b = ((b.position()[0] + 1.) * width as f32 / 2.) as u32;
+        let y_b = ((b.position()[1] + 1.) * height as f32 / 2.) as u32;
+        let x_c = ((c.position()[0] + 1.) * width as f32 / 2.) as u32;
+        let y_c = ((c.position()[1] + 1.) * height as f32 / 2.) as u32;
+        let a = Position { x: x_a, y: y_a };
+        let b = Position { x: x_b, y: y_b };
+        let c = Position { x: x_c, y: y_c };
 
+        if intensity > 0. {
             fill_triangle(
                 buffer,
                 window,
