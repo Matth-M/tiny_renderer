@@ -142,6 +142,18 @@ fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector
 
     u
 }
+
+fn outline_triangle(
+    buffer: &mut Vec<u32>,
+    window: &Window,
+    a: &Position,
+    b: &Position,
+    c: &Position,
+    color: Color,
+) {
+    draw_line(buffer, window, &a, &b, color);
+    draw_line(buffer, window, &a, &c, color);
+    draw_line(buffer, window, &c, &b, color);
 }
 
 pub fn fill_triangle(
@@ -215,9 +227,6 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
             let b = Position { x: x_b, y: y_b };
             let c = Position { x: x_c, y: y_c };
 
-            draw_line(buffer, window, &a, &b, Color::white());
-            draw_line(buffer, window, &a, &c, Color::white());
-            draw_line(buffer, window, &c, &b, Color::white());
             fill_triangle(
                 buffer,
                 window,
@@ -225,12 +234,14 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
                 &b,
                 &c,
                 Color::from_u8_rgb(
+                    (intensity * 125.) as u8,
                     (intensity * 255.) as u8,
-                    (intensity * 255.) as u8,
-                    (intensity * 255.) as u8,
+                    (intensity * 125.) as u8,
                 ),
             );
         }
+
+        outline_triangle(buffer, window, &a, &b, &c, Color::white());
     }
 }
 
