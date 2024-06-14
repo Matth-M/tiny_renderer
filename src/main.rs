@@ -19,6 +19,8 @@ fn main() {
     #[allow(unused_variables)]
     let head = wavefront::Obj::from_file("assets/head.obj").unwrap();
     let diablo3_pose = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
+    let cube = wavefront::Obj::from_file("assets/cube.obj").unwrap();
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
         drawing::render_model(&window, &mut buffer, &diablo3_pose);
