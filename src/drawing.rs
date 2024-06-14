@@ -212,21 +212,13 @@ fn is_on_line(a: &ScreenPosition, b: &ScreenPosition, check: &ScreenPosition) ->
 }
 
 //
-fn get_intensity(a: &Vertex, b: &Vertex, c: &Vertex, light_direction: [f32; 3]) -> f32 {
-    let a = a.position();
-    let b = b.position();
-    let c = c.position();
-    let ab = [
-        b[0] - a[0],
-        b[1] - a[1],
-        b[2] - a[2],
-    ];
-    let ac = [
-        c[0] - a[0],
-        c[1] - a[1],
-        c[2] - a[2],
-    ];
-    let normal = vec3_cross(ab,ac);
+fn get_intensity(worlds_coords: [&Vertex; 3], light_direction: [f32; 3]) -> f32 {
+    let a = worlds_coords[0].position();
+    let b = worlds_coords[1].position();
+    let c = worlds_coords[2].position();
+    let ab = vecmath::vec3_sub(b, a);
+    let ac = vecmath::vec3_sub(c, a);
+    let normal = vec3_cross(ab, ac);
     let normal = vec3_normalized(normal);
     vec3_dot(normal, light_direction)
 }
@@ -254,7 +246,7 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
     let light_direction = [0., 0., 1.];
 
     for [a, b, c] in model.triangles() {
-        let intensity = get_intensity(&a, &b, &c, light_direction);
+        let intensity = get_intensity([&a, &b, &c], light_direction);
         let [a, b, c] = convert_to_screen_coordinates([a, b, c], window);
         if intensity > 0. {
             fill_triangle(
