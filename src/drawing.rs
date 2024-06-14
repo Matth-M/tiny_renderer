@@ -120,14 +120,14 @@ pub fn triangle_line_sweep(
 // Computes the barycentric coordinates of point P based on the triangle ABC
 fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector3<f32> {
     let s: Vector3<f32> = [
-        b.x as f32 - a.x as f32,
-        c.x as f32 - a.x as f32,
-        a.x as f32 - p.x as f32,
+        a.x as f32 - b.x as f32,
+        a.x as f32 - c.x as f32,
+        p.x as f32 - a.x as f32,
     ];
     let t: Vector3<f32> = [
-        b.y as f32 - a.y as f32,
-        c.y as f32 - a.y as f32,
-        a.y as f32 - p.y as f32,
+        a.y as f32 - b.y as f32,
+        a.y as f32 - c.y as f32,
+        p.y as f32 - a.y as f32,
     ];
     let cross = vec3_cross(s, t);
     if cross[2].abs() < 1. {
@@ -139,7 +139,9 @@ fn barycentric(a: &Position, b: &Position, c: &Position, p: &Position) -> Vector
         cross[1] / cross[2],
         cross[0] / cross[2],
     ];
-    return u;
+
+    u
+}
 }
 
 pub fn fill_triangle(
