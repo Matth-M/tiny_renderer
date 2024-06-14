@@ -264,9 +264,9 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
                 &b,
                 &c,
                 Color::from_u8_rgb(
-                    (intensity * 125.) as u8,
                     (intensity * 255.) as u8,
-                    (intensity * 125.) as u8,
+                    (intensity * 255.) as u8,
+                    (intensity * 255.) as u8,
                 ),
             );
         }
