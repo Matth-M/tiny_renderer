@@ -223,21 +223,11 @@ fn get_intensity(worlds_coords: [&Vertex; 3], light_direction: [f32; 3]) -> f32 
     vec3_dot(normal, light_direction)
 }
 
-fn convert_to_screen_coordinates(v: [Vertex; 3], window: &Window) -> [ScreenPosition; 3] {
+fn convert_to_screen_coordinates(v: &Vertex, window: &Window) -> ScreenPosition {
     let (width, height) = window.get_size();
-    let a = v[0];
-    let b = v[1];
-    let c = v[2];
-    let x_a = ((a.position()[0] + 1.) * width as f32 / 2.) as u32;
-    let y_a = ((a.position()[1] + 1.) * height as f32 / 2.) as u32;
-    let x_b = ((b.position()[0] + 1.) * width as f32 / 2.) as u32;
-    let y_b = ((b.position()[1] + 1.) * height as f32 / 2.) as u32;
-    let x_c = ((c.position()[0] + 1.) * width as f32 / 2.) as u32;
-    let y_c = ((c.position()[1] + 1.) * height as f32 / 2.) as u32;
-    let a = ScreenPosition { x: x_a, y: y_a };
-    let b = ScreenPosition { x: x_b, y: y_b };
-    let c = ScreenPosition { x: x_c, y: y_c };
-    [a, b, c]
+    let x = ((v.position()[0] + 1.) * width as f32 / 2.) as u32;
+    let y = ((v.position()[1] + 1.) * height as f32 / 2.) as u32;
+    ScreenPosition { x, y }
 }
 
 /// Set buffer to render the model
@@ -247,8 +237,10 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
 
     for [a, b, c] in model.triangles() {
         let intensity = get_intensity([&a, &b, &c], light_direction);
-        let [a, b, c] = convert_to_screen_coordinates([a, b, c], window);
         if intensity > 0. {
+        let a = convert_to_screen_coordinates(&a, window);
+        let b = convert_to_screen_coordinates(&b, window);
+        let c = convert_to_screen_coordinates(&c, window);
             fill_triangle(
                 buffer,
                 window,
