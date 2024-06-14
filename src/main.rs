@@ -21,6 +21,7 @@ fn main() {
     let diablo3_pose = wavefront::Obj::from_file("assets/diablo3_pose.obj").unwrap();
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
+        render_model(&window, &mut buffer, &diablo3_pose);
         window.update_with_buffer(&buffer, width, height).unwrap();
         // let a = Position { x: 100, y: 100 };
         // let b = Position { x: 300, y: 200 };
@@ -33,6 +34,5 @@ fn main() {
         //     &c,
         //     Color::from_u8_rgb(128, 0, 0),
         // );
-        render_model(&window, &mut buffer, &diablo3_pose);
     }
 }
