@@ -4,6 +4,7 @@ use vecmath::{vec3_cross, vec3_dot, vec3_normalized, Vector3};
 use wavefront::{Obj, Vertex};
 
 #[derive(Clone, PartialEq, Debug)]
+/// Represents a pixel's position in the window
 pub struct ScreenPosition {
     pub x: u32,
     pub y: u32,
@@ -211,11 +212,11 @@ fn is_on_line(a: &ScreenPosition, b: &ScreenPosition, check: &ScreenPosition) ->
     check.y == (m * check.x as f32 + p) as u32
 }
 
-//
-fn get_intensity(worlds_coords: [&Vertex; 3], light_direction: [f32; 3]) -> f32 {
-    let a = worlds_coords[0].position();
-    let b = worlds_coords[1].position();
-    let c = worlds_coords[2].position();
+/// Computes the intensity on a triangle based on light direction.
+fn get_intensity(triangle: [&Vertex; 3], light_direction: [f32; 3]) -> f32 {
+    let a = triangle[0].position();
+    let b = triangle[1].position();
+    let c = triangle[2].position();
     let ab = vecmath::vec3_sub(b, a);
     let ac = vecmath::vec3_sub(c, a);
     let normal = vec3_cross(ab, ac);
@@ -223,6 +224,7 @@ fn get_intensity(worlds_coords: [&Vertex; 3], light_direction: [f32; 3]) -> f32 
     vec3_dot(normal, light_direction)
 }
 
+/// Gives the projection of the Vertex on screen given the dimensions of the window.
 fn convert_to_screen_coordinates(v: &Vertex, window: &Window) -> ScreenPosition {
     let (width, height) = window.get_size();
     let x = ((v.position()[0] + 1.) * width as f32 / 2.) as u32;
