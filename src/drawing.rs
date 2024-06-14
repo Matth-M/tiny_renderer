@@ -49,10 +49,7 @@ pub fn draw_line(
 /// Set pixel with color in the buffer
 pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: Color) {
     let width = window.get_size().0;
-    let height = window.get_size().1;
     // Use the complementary of the coordinates to render the right way
-    let y = height as u32 - y;
-    let x = width as u32 - x;
     let index = (y * width as u32 + x) as usize;
     if index < buffer.len() {
         buffer[index] = color.as_u32();
