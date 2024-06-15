@@ -23,7 +23,6 @@ fn main() {
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // Update the window
-        drawing::render_model(&window, &mut buffer, &diablo3_pose);
         window.update_with_buffer(&buffer, width, height).unwrap();
 
         // Draw model
