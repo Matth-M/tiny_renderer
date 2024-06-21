@@ -8,6 +8,7 @@ use wavefront::{Obj, Vertex};
 pub struct ScreenPosition {
     pub x: u32,
     pub y: u32,
+    pub z: f32, // Used for zbuffer
 }
 
 /// Draw a line between a and b.
@@ -80,12 +81,16 @@ pub fn triangle_line_sweep(
     for y in top.y..bottom.y {
         // x1 and x2 will be the intersection points
         // with the sides of the triangle
-        let mut x1 = ScreenPosition { x: 0_u32, y };
-        let mut x2 = ScreenPosition { x: 0_u32, y };
+        let mut x1 = ScreenPosition { x: 0_u32, y, z: 0. };
+        let mut x2 = ScreenPosition { x: 0_u32, y, z: 0. };
         // For each x along the window width, check which side it intersects
         // and save the corresponding x
         for x in 0..window.get_size().0 {
-            let p = ScreenPosition { x: x as u32, y };
+            let p = ScreenPosition {
+                x: x as u32,
+                y,
+                z: 0.,
+            };
             // Once the middle point, vertically wise, is crossed
             // check for intersection between middle point and botton point
             if y < middle.y {
@@ -171,6 +176,7 @@ fn is_inside_triangle(
 
 pub fn fill_triangle(
     buffer: &mut Vec<u32>,
+    zbuffer: &mut Vec<f32>,
     window: &Window,
     a: &ScreenPosition,
     b: &ScreenPosition,
@@ -178,6 +184,7 @@ pub fn fill_triangle(
     color: Color,
 ) {
     // Find bounding box
+    let (width, _) = window.get_size();
     let min_x = a.x.min(b.x).min(c.x);
     let max_x = a.x.max(b.x).max(c.x);
 
@@ -186,9 +193,20 @@ pub fn fill_triangle(
 
     for y in min_y..max_y {
         for x in min_x..max_x {
-            let p = ScreenPosition { x, y };
+            let mut p = ScreenPosition { x, y, z: 0. };
             // Check if p is inside the triangle
-            if is_inside_triangle(a, b, c, &p) {
+            if !is_inside_triangle(a, b, c, &p) {
+                continue;
+            }
+
+            let barycentric = barycentric(a, b, c, &p);
+            p.z += a.z + barycentric[0];
+            p.z += b.z + barycentric[1];
+            p.z += c.z + barycentric[2];
+
+            let pixel_index = (x + y * width as u32) as usize;
+            if zbuffer[pixel_index] < p.z {
+                zbuffer[pixel_index] = p.z;
                 set_pixel(window, buffer, x, y, color);
             }
         }
@@ -229,7 +247,8 @@ fn convert_to_screen_coordinates(v: &Vertex, window: &Window) -> ScreenPosition 
     let (width, height) = window.get_size();
     let x = ((v.position()[0] + 1.) * width as f32 / 2.) as u32;
     let y = ((v.position()[1] + 1.) * height as f32 / 2.) as u32;
-    ScreenPosition { x, y }
+    let z = v.position()[2];
+    ScreenPosition { x, y, z }
 }
 
 /// Set buffer to render the model
@@ -237,6 +256,8 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
     // Iterate through models triangles and draw them
     let light_direction = [0., 0., 1.];
 
+    let (width, height) = window.get_size();
+    let mut zbuffer = vec![f32::NEG_INFINITY; width * height];
     for [a, b, c] in model.triangles() {
         let intensity = get_intensity([&a, &b, &c], light_direction);
         if intensity > 0. {
@@ -245,6 +266,7 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
             let c = convert_to_screen_coordinates(&c, window);
             fill_triangle(
                 buffer,
+                &mut zbuffer,
                 window,
                 &a,
                 &b,
@@ -267,30 +289,46 @@ mod tests {
     #[test]
     fn vertical_line() {
         // Vertical line
-        let a = ScreenPosition { x: 6, y: 0 };
-        let b = ScreenPosition { x: 6, y: 100 };
-        let c = ScreenPosition { x: 6, y: 90 };
+        let a = ScreenPosition { x: 6, y: 0, z: 0. };
+        let b = ScreenPosition {
+            x: 6,
+            y: 100,
+            z: 0.,
+        };
+        let c = ScreenPosition { x: 6, y: 90, z: 0. };
         assert!(is_on_line(&a, &b, &c));
     }
 
     #[test]
     fn horizontal_line() {
         // Horizontal line
-        let a = ScreenPosition { x: 6, y: 250 };
-        let b = ScreenPosition { x: 85, y: 250 };
-        let c = ScreenPosition { x: 300, y: 250 };
+        let a = ScreenPosition {
+            x: 6,
+            y: 250,
+            z: 0.,
+        };
+        let b = ScreenPosition {
+            x: 85,
+            y: 250,
+            z: 0.,
+        };
+        let c = ScreenPosition {
+            x: 300,
+            y: 250,
+            z: 0.,
+        };
         assert!(is_on_line(&a, &b, &c));
     }
 
     #[test]
     fn test_is_inside_triangle() {
-        let a = ScreenPosition { x: 0, y: 0 };
-        let b = ScreenPosition { x: 10, y: 0 };
-        let c = ScreenPosition { x: 0, y: 20 };
-        let inside = ScreenPosition { x: 1, y: 1 };
+        let a = ScreenPosition { x: 0, y: 0, z: 0. };
+        let b = ScreenPosition { x: 10, y: 0, z: 0. };
+        let c = ScreenPosition { x: 0, y: 20, z: 0. };
+        let inside = ScreenPosition { x: 1, y: 1, z: 0. };
         assert!(is_inside_triangle(&a, &b, &c, &inside));
 
-        let outside = ScreenPosition { x: 46, y: 1 };
+        let outside = ScreenPosition { x: 46, y: 1, z: 0. };
         assert!(!is_inside_triangle(&a, &b, &c, &outside));
     }
 }
