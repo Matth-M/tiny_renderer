@@ -173,7 +173,7 @@ fn is_inside_triangle(
     let barycentric = barycentric(a, b, c, &p);
     let u = barycentric[0];
     let v = barycentric[1];
-    return u > 0. && v > 0. && u + v < 1.;
+    return u >= 0. && v >= 0. && u + v <= 1.;
 }
 
 pub fn fill_triangle(
@@ -279,7 +279,6 @@ pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
                     (intensity * 255.) as u8,
                 ),
             );
-            outline_triangle(buffer, window, &a, &b, &c, Color::white());
         }
     }
 }
