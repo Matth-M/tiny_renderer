@@ -13,7 +13,7 @@ pub struct ScreenPosition {
 
 /// Draw a line between a and b.
 pub fn draw_line(
-    buffer: &mut Vec<u32>,
+    buffer: &mut [u32],
     window: &Window,
     a: &ScreenPosition,
     b: &ScreenPosition,
@@ -49,7 +49,7 @@ pub fn draw_line(
 }
 
 /// Set pixel with color in the buffer
-pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: Color) {
+pub fn set_pixel(window: &Window, buffer: &mut [u32], x: u32, y: u32, color: Color) {
     let (width, height) = window.get_size();
     // Use the complementary of the coordinates to render the right way
     let x = width as u32 - x;
@@ -63,7 +63,7 @@ pub fn set_pixel(window: &Window, buffer: &mut Vec<u32>, x: u32, y: u32, color: 
 #[allow(dead_code)]
 /// Draw triangle filled triangle based on 3 points using the line sweeping algorithm.
 pub fn triangle_line_sweep(
-    buffer: &mut Vec<u32>,
+    buffer: &mut [u32],
     window: &Window,
     a: ScreenPosition,
     b: ScreenPosition,
@@ -152,7 +152,7 @@ fn barycentric(
 
 /// Draw outline of triangle
 fn outline_triangle(
-    buffer: &mut Vec<u32>,
+    buffer: &mut [u32],
     window: &Window,
     a: &ScreenPosition,
     b: &ScreenPosition,
@@ -170,15 +170,15 @@ fn is_inside_triangle(
     c: &ScreenPosition,
     p: &ScreenPosition,
 ) -> bool {
-    let barycentric = barycentric(a, b, c, &p);
+    let barycentric = barycentric(a, b, c, p);
     let u = barycentric[0];
     let v = barycentric[1];
-    return u >= 0. && v >= 0. && u + v <= 1.;
+    u >= 0. && v >= 0. && u + v <= 1.
 }
 
 pub fn fill_triangle(
-    buffer: &mut Vec<u32>,
-    zbuffer: &mut Vec<f32>,
+    buffer: &mut [u32],
+    zbuffer: &mut [f32],
     window: &Window,
     a: &ScreenPosition,
     b: &ScreenPosition,
@@ -254,7 +254,7 @@ fn convert_to_screen_coordinates(v: &Vertex, window: &Window) -> ScreenPosition 
 }
 
 /// Set buffer to render the model
-pub fn render_model(window: &Window, buffer: &mut Vec<u32>, model: &Obj) {
+pub fn render_model(window: &Window, buffer: &mut [u32], model: &Obj) {
     // Iterate through models triangles and draw them
     let light_direction = [0., 0., 1.];
 
